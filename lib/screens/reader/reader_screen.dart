@@ -1,10 +1,11 @@
 import 'dart:convert';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:smart_reader/models/chapter_info.dart';
+import 'package:smart_reader/models/highlight.dart';
 import 'package:smart_reader/repositories/book_repository.dart';
 import 'package:smart_reader/repositories/user_repository.dart';
 import 'package:smart_reader/screens/ai_chat/ai_chat_dialog.dart';
@@ -12,7 +13,7 @@ import 'package:smart_reader/screens/reader/bloc/reader_bloc.dart';
 import 'package:smart_reader/screens/reader/bloc/reader_state.dart';
 import 'package:smart_reader/theme/app_colors.dart';
 
-// === 1. WIDGET VỎ (WRAPPER) - NHIỆM VỤ KHỞI TẠO BLOC ===
+// === 1. WIDGET Vá»Ž (WRAPPER) - NHIá»†M Vá»¤ KHá»žI Táº O BLOC ===
 class ReaderScreen extends StatelessWidget {
   final String bookId;
   final String chapterId;
@@ -33,11 +34,11 @@ class ReaderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Khởi tạo BlocProvider ở đây
+    // Khá»Ÿi táº¡o BlocProvider á»Ÿ Ä‘Ã¢y
     return BlocProvider(
       create: (context) => ReaderBloc(repository: BookRepository())
         ..add(LoadChapterContentEvent(chapterId: chapterId)),
-      // Gọi Widget con chứa giao diện
+      // Gá»i Widget con chá»©a giao diá»‡n
       child: ReaderView(
         bookId: bookId,
         chapterId: chapterId,
@@ -50,7 +51,7 @@ class ReaderScreen extends StatelessWidget {
   }
 }
 
-// === 2. WIDGET GIAO DIỆN & LOGIC (VIEW) ===
+// === 2. WIDGET GIAO DIá»†N & LOGIC (VIEW) ===
 class ReaderView extends StatefulWidget {
   final String bookId;
   final String chapterId;
@@ -78,6 +79,12 @@ class _ReaderViewState extends State<ReaderView> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isPlaying = false;
   bool _isLoadingAudio = false;
+  bool _isLoadingHighlights = false;
+  String? _loadedHighlightsForChapter;
+  String _selectedText = '';
+  int _selectionStart = -1;
+  int _selectionEnd = -1;
+  List<Highlight> _highlights = [];
 
   @override
   void initState() {
@@ -93,6 +100,10 @@ class _ReaderViewState extends State<ReaderView> {
 
   // --- LOGIC TTS (TEXT TO SPEECH) ---
   String _stripHtml(String htmlString) {
+    htmlString = htmlString.replaceAll(
+      RegExp(r'<\s*/?\s*(p|div|br|li|h[1-6])[^>]*>', caseSensitive: false),
+      '\n',
+    );
     RegExp exp = RegExp(r"<[^>]*>", multiLine: true, caseSensitive: true);
     String text = htmlString.replaceAll(exp, ' ');
     text = text
@@ -100,11 +111,198 @@ class _ReaderViewState extends State<ReaderView> {
         .replaceAll('&lt;', '<')
         .replaceAll('&gt;', '>')
         .replaceAll('&amp;', '&');
-    return text.replaceAll(RegExp(r'\s+'), ' ').trim();
+    return text
+        .replaceAll(RegExp(r'[ \t]+'), ' ')
+        .replaceAll(RegExp(r'\n\s*\n+'), '\n\n')
+        .trim();
+  }
+
+  Future<void> _loadHighlightsIfNeeded() async {
+    final user = FirebaseAuth.instance.currentUser;
+    final marker = '${user?.uid ?? "guest"}:${widget.chapterId}';
+
+    if (user == null || _loadedHighlightsForChapter == marker) return;
+
+    _loadedHighlightsForChapter = marker;
+    setState(() => _isLoadingHighlights = true);
+
+    try {
+      final repo = context.read<BookRepository>();
+      final highlights = await repo.fetchHighlights(
+        userId: user.uid,
+        bookId: widget.bookId,
+        chapterId: widget.chapterId,
+      );
+      if (mounted) {
+        setState(() => _highlights = highlights);
+      }
+    } catch (e) {
+      debugPrint('Load highlights error: $e');
+    } finally {
+      if (mounted) setState(() => _isLoadingHighlights = false);
+    }
+  }
+
+  Future<void> _saveSelectedHighlight() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Vui lòng đăng nhập để highlight.')),
+      );
+      return;
+    }
+
+    if (_selectedText.trim().isEmpty || _selectionStart < 0 || _selectionEnd <= _selectionStart) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Hãy bôi đen đoạn muốn highlight trước.')),
+      );
+      return;
+    }
+
+    try {
+      final repo = context.read<BookRepository>();
+      final highlight = await repo.createHighlight(
+        userId: user.uid,
+        bookId: widget.bookId,
+        chapterId: widget.chapterId,
+        selectedText: _selectedText.trim(),
+        startOffset: _selectionStart,
+        endOffset: _selectionEnd,
+      );
+
+      if (mounted) {
+        setState(() {
+          _highlights = [..._highlights, highlight];
+          _selectedText = '';
+          _selectionStart = -1;
+          _selectionEnd = -1;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đã highlight đoạn đã chọn.')),
+        );
+      }
+    } catch (e) {
+      debugPrint('Create highlight error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không thể lưu highlight.')),
+        );
+      }
+    }
+  }
+
+  Future<void> _deleteHighlight(Highlight highlight) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    try {
+      await context.read<BookRepository>().deleteHighlight(
+            userId: user.uid,
+            highlightId: highlight.id,
+          );
+      if (mounted) {
+        setState(() {
+          _highlights = _highlights.where((item) => item.id != highlight.id).toList();
+        });
+      }
+    } catch (e) {
+      debugPrint('Delete highlight error: $e');
+    }
+  }
+
+  void _showHighlightsSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Đoạn đã highlight',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                if (_highlights.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: Center(child: Text('Chưa có highlight nào.')),
+                  )
+                else
+                  Flexible(
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: _highlights.length,
+                      separatorBuilder: (_, __) => const Divider(),
+                      itemBuilder: (context, index) {
+                        final item = _highlights[index];
+                        return ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: const Icon(Icons.format_color_fill, color: AppColors.primary),
+                          title: Text(
+                            item.selectedText,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.delete_outline),
+                            onPressed: () async {
+                              await _deleteHighlight(item);
+                              if (context.mounted) Navigator.pop(context);
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  TextSpan _buildHighlightedTextSpan(String text) {
+    final ranges = _highlights
+        .where((item) => item.startOffset >= 0 && item.endOffset <= text.length)
+        .map((item) => (start: item.startOffset, end: item.endOffset))
+        .toList()
+      ..sort((a, b) => a.start.compareTo(b.start));
+
+    final spans = <TextSpan>[];
+    var cursor = 0;
+
+    for (final range in ranges) {
+      if (range.start < cursor || range.start >= range.end) continue;
+      if (range.start > cursor) {
+        spans.add(TextSpan(text: text.substring(cursor, range.start)));
+      }
+      spans.add(
+        TextSpan(
+          text: text.substring(range.start, range.end),
+          style: const TextStyle(backgroundColor: Color(0xFFFFF59D)),
+        ),
+      );
+      cursor = range.end;
+    }
+
+    if (cursor < text.length) {
+      spans.add(TextSpan(text: text.substring(cursor)));
+    }
+
+    return TextSpan(children: spans);
   }
 
   void _handleListenChapter() async {
-    final state = context.read<ReaderBloc>().state; // Context này đã an toàn
+    final state = context.read<ReaderBloc>().state;
     if (state is! ReaderLoaded) return;
 
     if (_isPlaying) {
@@ -117,10 +315,17 @@ class _ReaderViewState extends State<ReaderView> {
 
     try {
       String cleanText = _stripHtml(state.chapter.content);
-      if (cleanText.length > 4000) {
-        cleanText = cleanText.substring(0, 4000) + "...";
+      if (cleanText.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Chỉ đọc 4000 ký tự đầu.")),
+          const SnackBar(content: Text('Chương này chưa có nội dung để đọc.')),
+        );
+        return;
+      }
+
+      if (cleanText.length > 4000) {
+        cleanText = '${cleanText.substring(0, 4000)}...';
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Chỉ đọc 4000 ký tự đầu.')),
         );
       }
 
@@ -137,11 +342,16 @@ class _ReaderViewState extends State<ReaderView> {
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Lỗi tải âm thanh")),
+          const SnackBar(content: Text('Lỗi tải âm thanh')),
         );
       }
     } catch (e) {
-      print("Lỗi TTS: $e");
+      debugPrint('TTS error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không thể tải âm thanh.')),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoadingAudio = false);
     }
@@ -169,12 +379,12 @@ class _ReaderViewState extends State<ReaderView> {
     );
   }
 
-  // --- LOGIC THỐNG KÊ (STATS) ---
+  // --- LOGIC THá»NG KÃŠ (STATS) ---
   Future<void> _updateStats() async {
     if (_startTime == null) return;
     final minutes = DateTime.now().difference(_startTime!).inMinutes;
 
-    // Tắt kiểm tra < 1 phút để test cho dễ, khi release thì mở lại
+    // Táº¯t kiá»ƒm tra < 1 phÃºt Ä‘á»ƒ test cho dá»…, khi release thÃ¬ má»Ÿ láº¡i
     // if (minutes < 1) return;
 
     int currentIndex = widget.currentChapterIndex;
@@ -212,12 +422,12 @@ class _ReaderViewState extends State<ReaderView> {
   void _showSummarySheet(String summary) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // Cho phép chỉnh chiều cao tùy ý
-      backgroundColor: Colors.transparent, // Để bo góc đẹp hơn
+      isScrollControlled: true, // Cho phÃ©p chá»‰nh chiá»u cao tÃ¹y Ã½
+      backgroundColor: Colors.transparent, // Äá»ƒ bo gÃ³c Ä‘áº¹p hÆ¡n
       builder: (context) {
         return Container(
           height:
-              MediaQuery.of(context).size.height * 0.7, // Chiếm 70% màn hình
+              MediaQuery.of(context).size.height * 0.7, // Chiáº¿m 70% mÃ n hÃ¬nh
           decoration: const BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -226,7 +436,7 @@ class _ReaderViewState extends State<ReaderView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // --- Tiêu đề ---
+              // --- TiÃªu Ä‘á» ---
               Row(
                 children: [
                   Container(
@@ -252,20 +462,20 @@ class _ReaderViewState extends State<ReaderView> {
               ),
               const Divider(height: 30),
 
-              // --- Nội dung tóm tắt ---
+              // --- Ná»™i dung tÃ³m táº¯t ---
               Expanded(
                 child: SingleChildScrollView(
                   child: Text(
                     summary,
                     style: const TextStyle(
                         fontSize: 16,
-                        height: 1.6, // Giãn dòng cho dễ đọc
+                        height: 1.6, // GiÃ£n dÃ²ng cho dá»… Ä‘á»c
                         color: Colors.black87),
                   ),
                 ),
               ),
 
-              // --- Nút đóng ---
+              // --- NÃºt Ä‘Ã³ng ---
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
@@ -288,11 +498,11 @@ class _ReaderViewState extends State<ReaderView> {
   }
 
   void _handleSummarize() async {
-    // 1. Lấy nội dung chương hiện tại từ Bloc
+    // 1. Láº¥y ná»™i dung chÆ°Æ¡ng hiá»‡n táº¡i tá»« Bloc
     final state = context.read<ReaderBloc>().state;
     if (state is! ReaderLoaded) return;
 
-    // 2. Hiện Loading
+    // 2. Hiá»‡n Loading
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -301,23 +511,23 @@ class _ReaderViewState extends State<ReaderView> {
     );
 
     try {
-      // 3. Lọc sạch HTML (Dùng lại hàm _stripHtml bạn đã viết ở phần TTS)
+      // 3. Lá»c sáº¡ch HTML (DÃ¹ng láº¡i hÃ m _stripHtml báº¡n Ä‘Ã£ viáº¿t á»Ÿ pháº§n TTS)
       String cleanText = _stripHtml(state.chapter.content);
 
-      // Cắt bớt nếu quá dài (Gemini 2.5 Flash xử lý được rất nhiều, nhưng cắt cho an toàn đường truyền)
+      // Cáº¯t bá»›t náº¿u quÃ¡ dÃ i (Gemini 2.5 Flash xá»­ lÃ½ Ä‘Æ°á»£c ráº¥t nhiá»u, nhÆ°ng cáº¯t cho an toÃ n Ä‘Æ°á»ng truyá»n)
       if (cleanText.length > 20000) {
         cleanText = cleanText.substring(0, 20000);
       }
 
-      // 4. Gọi Repository
+      // 4. Gá»i Repository
       final repo = context.read<BookRepository>();
       final summary = await repo.summarizeChapter(cleanText);
 
-      // Tắt Loading
+      // Táº¯t Loading
       if (mounted) Navigator.pop(context);
 
       if (summary != null) {
-        // 5. Hiện kết quả
+        // 5. Hiá»‡n káº¿t quáº£
         if (mounted) _showSummarySheet(summary);
       } else {
         if (mounted) {
@@ -327,14 +537,14 @@ class _ReaderViewState extends State<ReaderView> {
         }
       }
     } catch (e) {
-      if (mounted) Navigator.pop(context); // Tắt loading nếu lỗi
+      if (mounted) Navigator.pop(context); // Táº¯t loading náº¿u lá»—i
       print("Lỗi tóm tắt: $e");
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // KHÔNG bọc BlocProvider ở đây nữa
+    // KHÃ”NG bá»c BlocProvider á»Ÿ Ä‘Ã¢y ná»¯a
     return PopScope(
       canPop: true,
       onPopInvoked: (didPop) async {
@@ -358,7 +568,7 @@ class _ReaderViewState extends State<ReaderView> {
       elevation: 1,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.black),
-        onPressed: _onExit, // Gọi hàm thoát chuẩn
+        onPressed: _onExit, // Gá»i hÃ m thoÃ¡t chuáº©n
       ),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -376,8 +586,16 @@ class _ReaderViewState extends State<ReaderView> {
       ),
       actions: [
         IconButton(
+          tooltip: 'Highlight',
+          icon: Icon(
+            Icons.border_color_rounded,
+            color: _selectedText.trim().isEmpty ? Colors.black54 : AppColors.primary,
+          ),
+          onPressed: _saveSelectedHighlight,
+        ),
+        IconButton(
           icon: const Icon(Icons.more_vert, color: Colors.black),
-          onPressed: () {},
+          onPressed: _showHighlightsSheet,
         ),
       ],
     );
@@ -390,6 +608,12 @@ class _ReaderViewState extends State<ReaderView> {
           return const Center(child: CircularProgressIndicator());
         }
         if (state is ReaderLoaded) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _loadHighlightsIfNeeded();
+          });
+
+          final plainText = _stripHtml(state.chapter.content);
+
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -402,10 +626,34 @@ class _ReaderViewState extends State<ReaderView> {
                       color: Colors.black87),
                 ),
                 const SizedBox(height: 16),
-                HtmlWidget(
-                  state.chapter.content,
-                  textStyle: const TextStyle(
+                if (_isLoadingHighlights)
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 8),
+                    child: LinearProgressIndicator(minHeight: 2),
+                  ),
+                SelectableText.rich(
+                  _buildHighlightedTextSpan(plainText),
+                  style: const TextStyle(
                       fontSize: 16, height: 1.6, color: Colors.black87),
+                  textAlign: TextAlign.left,
+                  onSelectionChanged: (selection, cause) {
+                    if (selection.isCollapsed ||
+                        selection.start < 0 ||
+                        selection.end > plainText.length) {
+                      setState(() {
+                        _selectedText = '';
+                        _selectionStart = -1;
+                        _selectionEnd = -1;
+                      });
+                      return;
+                    }
+
+                    setState(() {
+                      _selectionStart = selection.start;
+                      _selectionEnd = selection.end;
+                      _selectedText = plainText.substring(selection.start, selection.end);
+                    });
+                  },
                 ),
                 _buildChapterNavigation(context),
               ],
@@ -436,7 +684,7 @@ class _ReaderViewState extends State<ReaderView> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  // --- NÚT NGHE SÁCH (Đã sửa) ---
+                  // --- NÃšT NGHE SÃCH (ÄÃ£ sá»­a) ---
                   _buildCustomNavItem(
                     icon: _isLoadingAudio
                         ? Icons.hourglass_empty

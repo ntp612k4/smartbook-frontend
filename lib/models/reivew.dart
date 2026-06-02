@@ -3,27 +3,31 @@ class Review {
   final String userId;
   final String comment;
   final DateTime createdAt;
-  final String userName; // <--- THÊM
-  final String userPhoto; // <--- THÊM
+  final String userName;
+  final String userPhoto;
 
   Review({
     required this.id,
     required this.userId,
     required this.comment,
     required this.createdAt,
-    required this.userName, // <--- THÊM
-    required this.userPhoto, // <--- THÊM
+    required this.userName,
+    required this.userPhoto,
   });
 
   factory Review.fromJson(Map<String, dynamic> json) {
+    final userId = json['userId']?.toString() ?? '';
+    final shortId = userId.length > 6 ? userId.substring(0, 6) : userId;
+    final fallbackName = shortId.isNotEmpty ? 'User $shortId' : 'Người dùng';
+    final name = (json['userName'] ?? '').toString().trim();
+
     return Review(
-      id: json['_id'],
-      userId: json['userId'],
+      id: json['_id']?.toString() ?? '',
+      userId: userId,
       comment: json['comment'] ?? '',
-      createdAt: DateTime.parse(json['createdAt']),
-      userName: json['userName'] ??
-          json['userId'].substring(0, 8), // Dùng display name hoặc UID rút gọn
-      userPhoto: json['userPhoto'] ?? '', // Lấy link ảnh
+      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
+      userName: name.isNotEmpty ? name : fallbackName,
+      userPhoto: json['userPhoto'] ?? '',
     );
   }
 }

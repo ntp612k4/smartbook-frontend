@@ -6,7 +6,7 @@ abstract class CategoryDetailState extends Equatable {
   const CategoryDetailState();
 
   @override
-  List<Object> props() => [];
+  List<Object> get props => [];
 }
 
 class CategoryDetailInitial extends CategoryDetailState {}
@@ -20,7 +20,7 @@ class CategoryDetailLoaded extends CategoryDetailState {
   const CategoryDetailLoaded({required this.category, required this.books});
 
   @override
-  List<Object> props() => [category, books];
+  List<Object> get props => [category, books];
 }
 
 class CategoryDetailError extends CategoryDetailState {
@@ -29,5 +29,5 @@ class CategoryDetailError extends CategoryDetailState {
   const CategoryDetailError(this.message);
 
   @override
-  List<Object> props() => [message];
+  List<Object> get props => [message];
 }

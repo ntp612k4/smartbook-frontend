@@ -4,7 +4,7 @@ abstract class AIChatEvent extends Equatable {
   const AIChatEvent();
 
   @override
-  List<Object?> props() => [];
+  List<Object?> get props => [];
 }
 
 // Khởi tạo chat (clear messages)
@@ -14,7 +14,7 @@ class InitializeChat extends AIChatEvent {
   const InitializeChat({required this.bookId, this.chapterId});
 
   @override
-  List<Object?> props() => [bookId, chapterId];
+  List<Object?> get props => [bookId, chapterId];
 }
 
 // Gửi câu hỏi tới AI
@@ -28,7 +28,7 @@ class SendChatMessage extends AIChatEvent {
   });
 
   @override
-  List<Object?> props() => [question, context];
+  List<Object?> get props => [question, context];
 }
 
 // Clear lịch sử chat

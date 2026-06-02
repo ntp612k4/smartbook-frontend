@@ -4,7 +4,7 @@ abstract class OnboardingState extends Equatable {
   const OnboardingState();
 
   @override
-  List<Object?> props() => [];
+  List<Object?> get props => [];
 }
 
 class OnboardingPageState extends OnboardingState {
@@ -19,7 +19,7 @@ class OnboardingPageState extends OnboardingState {
   });
 
   @override
-  List<Object?> props() => [currentPage, totalPages, isLastPage];
+  List<Object?> get props => [currentPage, totalPages, isLastPage];
 }
 
 class OnboardingCompleted extends OnboardingState {}

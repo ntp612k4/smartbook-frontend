@@ -41,7 +41,7 @@ class SpecialCard extends StatelessWidget {
               // Cột 1: Ảnh
               Container(
                 // height: 230,
-                width: 132,
+                width: 60,
                 margin: const EdgeInsets.only(right: 2),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,

@@ -90,30 +90,39 @@ class _ProfileScreenContent extends StatelessWidget {
     );
 
     final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final repo = context.read<UserRepository>();
+    if (user == null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Bạn cần đăng nhập để đổi ảnh")),
+        );
+      }
+      return;
+    }
 
+    final repo = context.read<UserRepository>();
+
+    try {
       // 1. Upload lên Storage
-      final String? downloadUrl =
+      final String downloadUrl =
           await repo.uploadAvatar(File(pickedFile.path), user.uid);
 
-      if (downloadUrl != null) {
-        // 2. Cập nhật Profile
-        await repo.updateUserProfile(userId: user.uid, photoUrl: downloadUrl);
+      // 2. Cập nhật Profile
+      await repo.updateUserProfile(userId: user.uid, photoUrl: downloadUrl);
 
-        // 3. Reload Bloc để UI hiển thị ảnh mới ngay lập tức
-        if (context.mounted) {
-          context.read<ProfileBloc>().add(LoadUserProfileEvent());
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Đổi ảnh thành công!")),
-          );
-        }
-      } else {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Lỗi khi upload ảnh")),
-          );
-        }
+      // 3. Reload Bloc để UI hiển thị ảnh mới ngay lập tức
+      if (context.mounted) {
+        context.read<ProfileBloc>().add(LoadUserProfileEvent());
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Đổi ảnh thành công!")),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.toString().replaceFirst('Exception: ', '')),
+          ),
+        );
       }
     }
   }

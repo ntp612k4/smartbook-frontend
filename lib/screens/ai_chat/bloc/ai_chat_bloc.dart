@@ -12,6 +12,9 @@ class AIChatBloc extends Bloc<AIChatEvent, AIChatState> {
 
   late String userId;
 
+  // ✅ NEW: RAG Mode Flag
+  bool useRAG = true; // ✅ TRUE - Dùng RAG để tiết kiệm token!
+
   AIChatBloc({
     required this.repository,
     required this.bookId,
@@ -53,14 +56,45 @@ class AIChatBloc extends Bloc<AIChatEvent, AIChatState> {
     emit(AIChatLoading(messages: [...currentMessages, loadingMessage]));
 
     try {
-      // 4. Gọi API AI
-      final aiResponse = await repository.askAI(
-        userId: userId,
-        bookId: bookId,
-        chapterId: chapterId,
-        question: event.question,
-        context: event.context,
-      );
+      // 4. ✅ NEW: Choose method (RAG or Legacy)
+      String aiResponse;
+
+      if (useRAG) {
+        // ✅ RAG: Vector Search Mode (không cần truyền context)
+        print('🚀 Using RAG method...');
+        try {
+          final ragResult = await repository.askAI_RAG(
+            userId: userId,
+            bookId: bookId,
+            chapterId: chapterId,
+            question: event.question,
+          );
+          aiResponse = ragResult['answer'] ?? "Không thể lấy câu trả lời";
+          print('✅ RAG Response received');
+        } catch (ragError) {
+          // Fallback to Legacy if RAG fails
+          print('⚠️ RAG failed, falling back to Legacy: $ragError');
+          aiResponse = await repository.askAI(
+            userId: userId,
+            bookId: bookId,
+            chapterId: chapterId,
+            question: event.question,
+            context: event.context,
+          );
+          print('✅ Fallback to Legacy successful');
+        }
+      } else {
+        // ❌ Legacy: Prompt Engineering Mode (cần truyền context)
+        print('📝 Using Legacy Prompt Engineering method...');
+        aiResponse = await repository.askAI(
+          userId: userId,
+          bookId: bookId,
+          chapterId: chapterId,
+          question: event.question,
+          context: event.context, // Full chapter content
+        );
+        print('✅ Legacy Response received');
+      }
 
       // 5. Thêm response từ AI
       final aiMessage = ChatMessage.fromAI(aiResponse);

@@ -14,7 +14,7 @@ import 'package:smart_reader/screens/home/bloc/home_event.dart';
 import 'package:smart_reader/screens/reader/reader_screen.dart';
 import 'package:smart_reader/theme/app_colors.dart';
 import 'package:smart_reader/widgets/buttons.dart';
-// ... import các file BLoC và Repository của bạn
+// ... import cÃ¡c file BLoC vÃ  Repository cá»§a báº¡n
 
 class BookDetailScreen extends StatefulWidget {
   final String bookId;
@@ -25,7 +25,7 @@ class BookDetailScreen extends StatefulWidget {
 }
 
 class _BookDetailScreenState extends State<BookDetailScreen> {
-  bool isAdded = false; // Trạng thái nút bấm
+  bool isAdded = false; // Tráº¡ng thÃ¡i nÃºt báº¥m
   final user = FirebaseAuth.instance.currentUser;
 
   @override
@@ -34,7 +34,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     _checkStatus();
   }
 
-  // Kiểm tra xem sách đã có trong thư viện chưa để hiện đúng màu nút
+  // Kiá»ƒm tra xem sÃ¡ch Ä‘Ã£ cÃ³ trong thÆ° viá»‡n chÆ°a Ä‘á»ƒ hiá»‡n Ä‘Ãºng mÃ u nÃºt
   void _checkStatus() async {
     if (user != null) {
       final status = await context.read<UserRepository>().checkIsAdded(
@@ -47,30 +47,30 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     }
   }
 
-  // Hàm xử lý khi bấm nút
+  // HÃ m xá»­ lÃ½ khi báº¥m nÃºt
   void _onToggleLibrary() async {
     if (user == null) {
-      // Show dialog bắt đăng nhập
+      // Show dialog báº¯t Ä‘Äƒng nháº­p
       return;
     }
 
-    // 1. Gọi API
+    // 1. Gá»i API
     final newStatus = await context.read<UserRepository>().toggleLibrary(
           user!.uid,
           widget.bookId,
         );
 
-    // 2. Cập nhật UI nút bấm
+    // 2. Cáº­p nháº­t UI nÃºt báº¥m
     setState(() {
       isAdded = newStatus;
     });
 
-    // 3. Quan trọng: Reload lại dữ liệu trang Home để danh sách cập nhật
+    // 3. Quan trá»ng: Reload láº¡i dá»¯ liá»‡u trang Home Ä‘á»ƒ danh sÃ¡ch cáº­p nháº­t
     if (context.mounted) {
       context.read<HomeBloc>().add(LoadHomeDataEvent(userId: user!.uid));
     }
 
-    // 4. Thông báo nhỏ
+    // 4. ThÃ´ng bÃ¡o nhá»
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -80,11 +80,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     );
   }
 
-  // --- HÀM MỞ FORM BÌNH LUẬN (MỚI) ---
+  // --- HÃ€M Má»ž FORM BÃŒNH LUáº¬N (Má»šI) ---
   // Trong class _BookDetailScreenState
 
   void _showReviewForm(BuildContext context, String bookId) {
-    // 1. Lấy instance của Bloc đang chạy TỪ TRONG SCOPE CỦA BOOKDETAILSCREEN
+    // 1. Láº¥y instance cá»§a Bloc Ä‘ang cháº¡y Tá»ª TRONG SCOPE Cá»¦A BOOKDETAILSCREEN
     final bookDetailBloc = context.read<BookDetailBloc>();
 
     showModalBottomSheet(
@@ -92,18 +92,18 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.white,
       builder: (modalContext) {
-        // Dùng modalContext cho Widget con
+        // DÃ¹ng modalContext cho Widget con
 
-        // 2. Bọc Form nhập liệu bằng BlocProvider.value
+        // 2. Bá»c Form nháº­p liá»‡u báº±ng BlocProvider.value
         return BlocProvider.value(
-          value: bookDetailBloc, // 🎯 Truyền instance Bloc đã lấy vào Route mới
+          value: bookDetailBloc, // ðŸŽ¯ Truyá»n instance Bloc Ä‘Ã£ láº¥y vÃ o Route má»›i
           child: ReviewInputForm(bookId: bookId),
         );
       },
     ).then((_) {
-      // Tùy chọn: Reload lại dữ liệu trang chi tiết khi modal đóng
+      // TÃ¹y chá»n: Reload láº¡i dá»¯ liá»‡u trang chi tiáº¿t khi modal Ä‘Ã³ng
       if (context.mounted) {
-        // Reload để cập nhật list reviews và điểm
+        // Reload Ä‘á»ƒ cáº­p nháº­t list reviews vÃ  Ä‘iá»ƒm
         bookDetailBloc.add(LoadBookDetailEvent(bookId: widget.bookId));
       }
     });
@@ -111,7 +111,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Khởi tạo BLoC và tải dữ liệu ngay lập tức
+    // 1. Khá»Ÿi táº¡o BLoC vÃ  táº£i dá»¯ liá»‡u ngay láº­p tá»©c
     return BlocProvider(
       create: (context) => BookDetailBloc(repository: BookRepository())
         ..add(LoadBookDetailEvent(bookId: widget.bookId)),
@@ -139,10 +139,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     );
   }
 
-  // Phương thức tách riêng để xây dựng UI sau khi tải dữ liệu thành công
+  // PhÆ°Æ¡ng thá»©c tÃ¡ch riÃªng Ä‘á»ƒ xÃ¢y dá»±ng UI sau khi táº£i dá»¯ liá»‡u thÃ nh cÃ´ng
   Widget _buildLoadedContent(
       BuildContext context, Book book, List<Review> reviews) {
-    // Sử dụng DefaultTabController để quản lý 3 tabs: About, Chapters, Reviews
+    // Sá»­ dá»¥ng DefaultTabController Ä‘á»ƒ quáº£n lÃ½ 3 tabs: About, Chapters, Reviews
     return DefaultTabController(
       length: 3,
       child: NestedScrollView(
@@ -150,9 +150,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           return <Widget>[
             SliverList(
               delegate: SliverChildListDelegate([
-                // Đặt SafeArea xung quanh CustomHeaderIcons
+                // Äáº·t SafeArea xung quanh CustomHeaderIcons
                 SafeArea(
-                  bottom: false, // Không áp dụng padding dưới
+                  bottom: false, // KhÃ´ng Ã¡p dá»¥ng padding dÆ°á»›i
                   child: _buildCustomHeaderIcons(context, book.title),
                 ),
               ]),
@@ -160,7 +160,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             SliverAppBar(
               toolbarHeight: 0,
               pinned: false,
-              expandedHeight: 320.0, // Chiều cao tối đa của header
+              expandedHeight: 320.0, // Chiá»u cao tá»‘i Ä‘a cá»§a header
 
               flexibleSpace: FlexibleSpaceBar(
                 collapseMode: CollapseMode.pin,
@@ -170,7 +170,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // _buildCustomHeaderIcons(context, book.title),
-                      _buildBookInfo(book), // Chứa ảnh và chi tiết sách
+                      _buildBookInfo(book), // Chá»©a áº£nh vÃ  chi tiáº¿t sÃ¡ch
                       const SizedBox(height: 20),
                       _buildActionButtons(context, book),
                     ],
@@ -178,7 +178,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                 ),
               ),
 
-              // TabBar cố định
+              // TabBar cá»‘ Ä‘á»‹nh
               bottom: const TabBar(
                 indicatorColor: AppColors.primary,
                 labelColor: AppColors.primary,
@@ -192,7 +192,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             ),
           ];
         },
-        // Nội dung của Tab Bar View
+        // Ná»™i dung cá»§a Tab Bar View
         body: TabBarView(
           children: [
             BookSynopsisTab(book: book),
@@ -204,7 +204,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     );
   }
 
-  // Trong class BookDetailScreen (Thêm vào cùng nơi với các hàm _build...)
+  // Trong class BookDetailScreen (ThÃªm vÃ o cÃ¹ng nÆ¡i vá»›i cÃ¡c hÃ m _build...)
 
   Widget _buildCustomHeaderIcons(BuildContext context, String title) {
     return Container(
@@ -229,28 +229,28 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       ),
     );
   }
-  // Trong BookDetailScreen.dart (Hàm _buildActionButtons)
+  // Trong BookDetailScreen.dart (HÃ m _buildActionButtons)
 
   Widget _buildActionButtons(BuildContext context, Book book) {
-    // Lấy trạng thái của nút Add to Library
+    // Láº¥y tráº¡ng thÃ¡i cá»§a nÃºt Add to Library
     // final bool isAdded = book.isAddedToLibrary;
 
     return Column(
       children: [
-        // Hàng 1: Listen Now (Chính) và Read Now (Phụ)
+        // HÃ ng 1: Listen Now (ChÃ­nh) vÃ  Read Now (Phá»¥)
         Row(
           children: [
-            // 1. Listen Now (Nút chính)
+            // 1. Listen Now (NÃºt chÃ­nh)
             ListButtons(
               "Nghe ngay",
               Icons.play_arrow,
               () {},
-              isPrimary: true, //nút chính
+              isPrimary: true, //nÃºt chÃ­nh
             ),
             const SizedBox(width: 10),
             ListButtons("Đọc ngay", Icons.menu_book, () {
-              print('đang vào chương 1 đọc');
-              //kiem tra xem danh sach co chuong nào ko
+              print('Ä‘ang vÃ o chÆ°Æ¡ng 1 Ä‘á»c');
+              //kiem tra xem danh sach co chuong nÃ o ko
               if (book.chapters.isNotEmpty) {
                 final firstChapter = book.chapters[0];
 
@@ -269,7 +269,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   ),
                 );
               } else {
-                // Tùy chọn: Hiển thị thông báo nếu không có chương
+                // TÃ¹y chá»n: Hiá»ƒn thá»‹ thÃ´ng bÃ¡o náº¿u khÃ´ng cÃ³ chÆ°Æ¡ng
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text("Sách này hiện chưa có chương nào."),
@@ -283,25 +283,22 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
 
         const SizedBox(height: 10),
 
-        // Hàng 2:
+        // HÃ ng 2:
         Row(
           children: [
-            // Thay thế ListButtons cũ bằng Expanded + OutlinedButton để giống thiết kế
             Expanded(
               child: SizedBox(
-                height: 42, // Chiều cao cho bằng nút bên cạnh
+                height: 42, // 
                 child: OutlinedButton.icon(
-                  // 3. GẮN HÀM XỬ LÝ VÀO ĐÂY
                   onPressed: _onToggleLibrary,
 
-                  // Icon thay đổi theo trạng thái
                   icon: Icon(
                     isAdded ? Icons.check : Icons.add,
                     color:
                         isAdded ? AppColors.primary : const Color(0xFF28C7A0),
                   ),
 
-                  // Chữ thay đổi theo trạng thái
+                  // Chá»¯ thay Ä‘á»•i theo tráº¡ng thÃ¡i
                   label: Text(
                     isAdded ? "Đã thêm" : "Thêm thư viện",
                     style: TextStyle(
@@ -311,7 +308,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                     ),
                   ),
 
-                  // Style viền
+                  // Style viá»n
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(
                       color: isAdded ? AppColors.primary : AppColors.primary,
@@ -330,7 +327,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                 height: 42,
                 child: OutlinedButton.icon(
                   onPressed: () => _showReviewForm(
-                      context, book.bookId), // 🎯 GẮN HÀM VÀO ĐÂY
+                      context, book.bookId), // ðŸŽ¯ Gáº®N HÃ€M VÃ€O ÄÃ‚Y
                   icon: Icon(Icons.edit, color: Colors.grey[700]),
                   label: Text("Bình luận",
                       style: TextStyle(color: Colors.grey[700])),
@@ -347,7 +344,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     );
   }
 
-  // Tách riêng _buildBookInfo để chứa nội dung Row cũ của bạn
   Widget _buildBookInfo(Book book) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -404,7 +400,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   "${book.chapters.length} Chương",
                   style: TextStyle(fontSize: 13, color: AppColors.textDark),
                 ),
-                // Thêm rating và thống kê ở đây
+                // ThÃªm rating vÃ  thá»‘ng kÃª á»Ÿ Ä‘Ã¢y
               ],
             ),
           ),
@@ -414,7 +410,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   }
 }
 
-// Cần tạo các file widget này để chứa nội dung từng Tab
+// Cáº§n táº¡o cÃ¡c file widget nÃ y Ä‘á»ƒ chá»©a ná»™i dung tá»«ng Tab
 class BookSynopsisTab extends StatelessWidget {
   final Book book;
   const BookSynopsisTab({super.key, required this.book});
@@ -436,7 +432,7 @@ class BookSynopsisTab extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(book.description, style: TextStyle(color: Colors.black54)),
-          // ... Thêm các Tags/Genres tại đây
+          // ... ThÃªm cÃ¡c Tags/Genres táº¡i Ä‘Ã¢y
         ],
       ),
     );
@@ -467,12 +463,12 @@ class BookChaptersTab extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) => ReaderScreen(
                   bookId: book.bookId,
-                  // 1. Thông tin chương hiện tại
+                  // 1. ThÃ´ng tin chÆ°Æ¡ng hiá»‡n táº¡i
                   chapterId: chapter.id,
                   chapterTitle: chapter.title,
                   bookTitle: book.title,
 
-                  // 2. Thông tin để lật trang
+                  // 2. ThÃ´ng tin Ä‘á»ƒ láº­t trang
                   allChapters: book.chapters,
                   currentChapterIndex: index,
                 ),
@@ -486,10 +482,10 @@ class BookChaptersTab extends StatelessWidget {
 }
 
 // ===========================================
-// WIDGET CON: TAB VÀ FORM (THÊM VÀO CUỐI FILE)
+// WIDGET CON: TAB VÃ€ FORM (THÃŠM VÃ€O CUá»I FILE)
 // ===========================================
 
-// A. BookReviewsTab (Hiển thị danh sách)
+// A. BookReviewsTab (Hiá»ƒn thá»‹ danh sÃ¡ch)
 class BookReviewsTab extends StatelessWidget {
   final String bookId;
   final List<Review> reviews;
@@ -501,12 +497,12 @@ class BookReviewsTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // NÚT MỞ FORM BÌNH LUẬN
+        // NÃšT Má»ž FORM BÃŒNH LUáº¬N
         Padding(
           padding: const EdgeInsets.all(10),
           child: ElevatedButton.icon(
             onPressed: () {
-              // Gọi hàm mở form từ State cha
+              // Gá»i hÃ m má»Ÿ form tá»« State cha
               (context.findAncestorStateOfType<_BookDetailScreenState>()
                       as _BookDetailScreenState)
                   ._showReviewForm(context, bookId);
@@ -520,7 +516,7 @@ class BookReviewsTab extends StatelessWidget {
           ),
         ),
 
-        // DANH SÁCH BÌNH LUẬN
+        // DANH SÃCH BÃŒNH LUáº¬N
         Expanded(
           child: reviews.isEmpty
               ? const Center(child: Text("Chưa có bình luận nào."))
@@ -531,17 +527,26 @@ class BookReviewsTab extends StatelessWidget {
                     return ListTile(
                       // 1. AVATAR
                       leading: CircleAvatar(
-                        // backgroundImage: review.userPhoto.isNotEmpty
-                        //     ? NetworkImage(review.userPhoto) as ImageProvider
-                        //     : null,
+                        backgroundColor: AppColors.primary.withOpacity(0.14),
+                        backgroundImage: review.userPhoto.isNotEmpty
+                            ? NetworkImage(review.userPhoto)
+                            : null,
                         child: review.userPhoto.isEmpty
-                            ? const Icon(Icons.person, color: Colors.white)
+                            ? Text(
+                                review.userName.isNotEmpty
+                                    ? review.userName.substring(0, 1).toUpperCase()
+                                    : 'U',
+                                style: const TextStyle(
+                                  color: AppColors.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              )
                             : null,
                       ),
 
-                      // 2. TÊN USER
+                      // 2. TÃŠN USER
                       title: Text(
-                        'Người ẩn danh', // Hiển thị tên
+                        review.userName,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       subtitle: Text(review.comment),
@@ -556,7 +561,7 @@ class BookReviewsTab extends StatelessWidget {
   }
 }
 
-// B. ReviewInputForm (Form Nhập liệu - Dạng BottomSheet)
+// B. ReviewInputForm (Form Nháº­p liá»‡u - Dáº¡ng BottomSheet)
 class ReviewInputForm extends StatefulWidget {
   final String bookId;
 
@@ -593,24 +598,26 @@ class _ReviewInputFormState extends State<ReviewInputForm> {
     try {
       final repo = context.read<BookRepository>();
 
-      // 1. Gửi bình luận (Comment Only)
+      // 1. Gá»­i bÃ¬nh luáº­n (Comment Only)
       await repo.submitReview(
         userId: user.uid,
         bookId: widget.bookId,
         comment: commentText,
+        userName: user.displayName ?? '',
+        userPhoto: user.photoURL ?? '',
       );
 
-      // 2. Thông báo thành công và reload
+      // 2. ThÃ´ng bÃ¡o thÃ nh cÃ´ng vÃ  reload
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text("Bình luận của bạn đã được gửi!")));
 
-        // 🎯 RELOAD BLOC: Tải lại chi tiết sách để list reviews được cập nhật
+        // ðŸŽ¯ RELOAD BLOC: Táº£i láº¡i chi tiáº¿t sÃ¡ch Ä‘á»ƒ list reviews Ä‘Æ°á»£c cáº­p nháº­t
         context
             .read<BookDetailBloc>()
             .add(LoadBookDetailEvent(bookId: widget.bookId));
 
-        Navigator.pop(context); // Đóng BottomSheet
+        Navigator.pop(context); // ÄÃ³ng BottomSheet
       }
     } catch (e) {
       if (context.mounted) {
@@ -637,7 +644,7 @@ class _ReviewInputFormState extends State<ReviewInputForm> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
 
-          // Ô nhập comment
+          // Ã” nháº­p comment
           TextField(
             controller: _commentController,
             maxLines: 4,

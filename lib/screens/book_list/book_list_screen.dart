@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smart_reader/models/book.dart';
 import 'package:smart_reader/screens/book_detail/book_detail_screen.dart';
-import 'package:smart_reader/screens/category_detail/category_detail_screen.dart';
 import 'package:smart_reader/theme/app_colors.dart';
 import 'package:smart_reader/widgets/list_card.dart';
 

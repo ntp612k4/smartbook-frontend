@@ -7,7 +7,7 @@ abstract class AIChatState extends Equatable {
   const AIChatState({this.messages = const []});
 
   @override
-  List<Object?> props() => [messages];
+  List<Object?> get props => [messages];
 }
 
 // Trạng thái ban đầu
@@ -21,7 +21,7 @@ class AIChatLoading extends AIChatState {
       : super(messages: messages);
 
   @override
-  List<Object?> props() => [messages];
+  List<Object?> get props => [messages];
 }
 
 // Đã tải xong
@@ -30,7 +30,7 @@ class AIChatLoaded extends AIChatState {
       : super(messages: messages);
 
   @override
-  List<Object?> props() => [messages];
+  List<Object?> get props => [messages];
 }
 
 // Lỗi
@@ -43,5 +43,5 @@ class AIChatError extends AIChatState {
   }) : super(messages: messages);
 
   @override
-  List<Object?> props() => [error, messages];
+  List<Object?> get props => [error, messages];
 }

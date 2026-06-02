@@ -35,5 +35,5 @@ class CategoryState extends Equatable {
   }
 
   @override
-  List<Object?> props() => [isLoading, categories, error];
+  List<Object?> get props => [isLoading, categories, error];
 }

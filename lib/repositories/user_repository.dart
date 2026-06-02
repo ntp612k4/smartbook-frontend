@@ -165,23 +165,54 @@ class UserRepository {
   }
 
 // 1. Hàm Upload ảnh lên Firebase và lấy URL
-  Future<String?> uploadAvatar(File imageFile, String userId) async {
+  Future<String> uploadAvatar(File imageFile, String userId) async {
     try {
       // Tạo tên file: avatars/uid_time.jpg (thêm time để tránh cache ảnh cũ)
-      String fileName =
-          'avatars/${userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+      if (!await imageFile.exists()) {
+        throw Exception('File ảnh không tồn tại trên thiết bị');
+      }
+
+      final safeUserId = userId.replaceAll(RegExp(r'[^a-zA-Z0-9_-]'), '_');
+      final fileName =
+          'avatars/$safeUserId/${DateTime.now().millisecondsSinceEpoch}.jpg';
 
       final ref = FirebaseStorage.instance.ref().child(fileName);
+      final metadata = SettableMetadata(
+        contentType: 'image/jpeg',
+        customMetadata: {'userId': userId},
+      );
 
       // Bắt đầu upload
-      await ref.putFile(imageFile);
+      await ref.putFile(imageFile, metadata);
 
       // Lấy link tải về
       final url = await ref.getDownloadURL();
       return url;
+    } on FirebaseException catch (e) {
+      print(
+        'Firebase Storage upload error: code=${e.code}, message=${e.message}',
+      );
+      throw Exception(_getStorageErrorMessage(e));
     } catch (e) {
       print("Lỗi upload Storage: $e");
-      return null;
+      throw Exception('Không thể upload ảnh: $e');
+    }
+  }
+
+  String _getStorageErrorMessage(FirebaseException e) {
+    switch (e.code) {
+      case 'unauthorized':
+        return 'Firebase Storage chưa cho phép tài khoản này upload ảnh. Hãy kiểm tra Storage Rules.';
+      case 'bucket-not-found':
+        return 'Không tìm thấy Firebase Storage bucket. Hãy kiểm tra cấu hình Firebase.';
+      case 'canceled':
+        return 'Upload ảnh đã bị hủy.';
+      case 'retry-limit-exceeded':
+        return 'Mạng yếu hoặc upload quá lâu. Vui lòng thử lại.';
+      case 'object-not-found':
+        return 'Không tìm thấy file ảnh sau khi upload.';
+      default:
+        return e.message ?? 'Không thể upload ảnh lên Firebase Storage.';
     }
   }
 

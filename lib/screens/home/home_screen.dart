@@ -53,6 +53,20 @@ class _HomeScreenState extends State<HomeScreen> {
           .map((c) => ChapterInfo(id: c.id, title: c.title, order: c.order))
           .toList();
 
+      // ✅ Check if chapters exist
+      if (allChapters.isEmpty) {
+        if (context.mounted) Navigator.pop(context);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("❌ Sách này chưa có chương nào."),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+        return;
+      }
+
       // 4. Tìm vị trí (index) của chương đang đọc dở
       int index = allChapters.indexWhere((c) => c.id == item.chapterId);
 
@@ -269,9 +283,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: ListView(
                               scrollDirection: Axis.horizontal,
                               children: state.categories.map((c) {
-                                final selected =
-                                    state.selectedCategory?.categoryName ==
-                                        c.categoryName;
                                 return GestureDetector(
                                   onTap: () {
                                     print(
@@ -486,7 +497,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           ),
                           SizedBox(
-                            height: 230,
+                            height: 150,
                             child: ListView(
                               scrollDirection: Axis.horizontal,
                               children: state.specialBooks.map((d) {

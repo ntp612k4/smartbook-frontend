@@ -17,7 +17,7 @@ class ChatMessage extends Equatable {
   });
 
   @override
-  List<Object?> props() => [id, text, isUser, timestamp, isLoading];
+  List<Object?> get props => [id, text, isUser, timestamp, isLoading];
 
   // Khởi tạo message user
   factory ChatMessage.fromUser(String text) {

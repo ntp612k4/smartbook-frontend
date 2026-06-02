@@ -4,7 +4,7 @@ abstract class BookDetailEvent extends Equatable {
   const BookDetailEvent();
 
   @override
-  List<Object?> props() => [];
+  List<Object?> get props => [];
 }
 
 class LoadBookDetailEvent extends BookDetailEvent {
@@ -13,5 +13,5 @@ class LoadBookDetailEvent extends BookDetailEvent {
   const LoadBookDetailEvent({required this.bookId});
 
   @override
-  List<Object?> props() => [bookId];
+  List<Object?> get props => [bookId];
 }

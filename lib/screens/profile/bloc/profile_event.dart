@@ -2,7 +2,7 @@ import 'package:equatable/equatable.dart';
 
 abstract class ProfileEvent extends Equatable {
   @override
-  List<Object?> props() => [];
+  List<Object?> get props => [];
 }
 
 class LoadUserProfileEvent extends ProfileEvent {}
@@ -19,7 +19,7 @@ class UpdateReadingStatsEvent extends ProfileEvent {
   });
 
   @override
-  List<Object?> props() => [booksRead, dayStreak, timeRead];
+  List<Object?> get props => [booksRead, dayStreak, timeRead];
 }
 
 class UpdateUserInfoEvent extends ProfileEvent {
@@ -29,7 +29,7 @@ class UpdateUserInfoEvent extends ProfileEvent {
   UpdateUserInfoEvent({this.displayName, this.photoURL});
 
   @override
-  List<Object?> props() => [displayName, photoURL];
+  List<Object?> get props => [displayName, photoURL];
 }
 
 class LogoutUserEvent extends ProfileEvent {}

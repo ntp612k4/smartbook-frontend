@@ -31,6 +31,9 @@ class BookDetailBloc extends Bloc<BookDetailEvent, BookDetailState> {
       final book = results[0] as Book;
       final reviews = results[1] as List<Review>; // Lấy kết quả từ vị trí 1
 
+      print(
+          '✅ BookDetailBloc - Book loaded: ${book.title}, Chapters: ${book.chapters.length}, Reviews: ${reviews.length}');
+
       // 3. Phát ra trạng thái Đã tải xong (Loaded) kèm theo dữ liệu sách
       emit(BookDetailLoaded(book: book, reviews: reviews));
     } catch (e) {

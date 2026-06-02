@@ -5,7 +5,7 @@ abstract class CategoryDetailEvent extends Equatable {
   const CategoryDetailEvent();
 
   @override
-  List<Object> props() => [];
+  List<Object> get props => [];
 }
 
 class LoadCategoryBooksEvent extends CategoryDetailEvent {
@@ -14,5 +14,5 @@ class LoadCategoryBooksEvent extends CategoryDetailEvent {
   const LoadCategoryBooksEvent(this.category);
 
   @override
-  List<Object> props() => [category];
+  List<Object> get props => [category];
 }

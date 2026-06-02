@@ -51,6 +51,8 @@ class Book {
           .map((chapterJson) => ChapterInfo.fromJson(chapterJson))
           .toList();
     }
+    print(
+        '📖 Book.fromJson: ${json['title']} - Chapters: ${chapterList.length}');
 
     // Xử lý 'genres' (List<String>)
     var genresList = <String>[];
