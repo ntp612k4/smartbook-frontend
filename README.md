@@ -1,130 +1,743 @@
-# SmartBook App
+# SmartBook - Intelligent Reader Application
 
-SmartBook App is a smart book reading and listening application designed to provide a seamless experience for discovering, reading, and listening to books. The project is built with a complete Client-Server architecture using Flutter (Frontend) and Node.js (Backend).
+<div align="center">
 
-## Demo video
+[![Flutter](https://img.shields.io/badge/Flutter-3.32.7-blue.svg)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.0+-orange.svg)](https://dart.dev)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/Version-1.0.0-brightgreen.svg)](#)
 
-Watch demo: https://www.youtube.com/watch?v=3IAfKmN8pgM
+A modern, intelligent book reading application built with Flutter and Firebase, featuring AI-powered chat, real-time synchronization, and comprehensive book management.
 
-## Features
+[Features](#-features) • [Tech Stack](#-tech-stack) • [Quick Start](#-quick-start) • [Documentation](#-documentation) • [Contributing](#-contributing)
 
-Home Screen:
+</div>
 
-- Discovery: Displays latest books, featured books (based on ratings), and top authors.
+---
 
-- Categorization: Filter books by categories (Self-help, Business, Literature, etc.).
-  Book Detail:
+## 📋 Table of Contents
 
-- Detailed Info: View comprehensive book details (author, description, rating).
+- [Overview](#-overview)
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Prerequisites](#-prerequisites)
+- [Installation](#-installation)
+- [Project Structure](#-project-structure)
+- [Configuration](#-configuration)
+- [Usage](#-usage)
+- [API Integration](#-api-integration)
+- [Deployment](#-deployment)
+- [Contributing](#-contributing)
+- [Troubleshooting](#-troubleshooting)
+- [License](#-license)
+- [Contact](#-contact)
 
-- Chapter List: Easy access to all chapters.
+---
 
-- Quick Start: "Read Now" button automatically opens the first chapter.
+## 🎯 Overview
 
-Book Reader:
+**SmartBook** is an intelligent book reading platform that combines traditional e-reading functionality with modern AI features. Users can browse, read, and discover books while engaging with an AI chatbot for book recommendations and discussions.
 
-- Rich Text Rendering: Displays chapter content in HTML format for better typography.
+**Key Highlights:**
 
-- Smart Navigation: Switch between chapters (Previous/Next) directly from the reading screen.
+- Cross-platform support (Android, iOS, Web, Windows, macOS, Linux)
+- Real-time Firebase integration for seamless data synchronization
+- AI-powered chatbot for intelligent book interactions
+- Modern UI with responsive design
+- Secure authentication with Google Sign-In
 
-- Utility Toolbar: Audio player, Summary view, and AI Chat integration (UI).
+**Demo Video:** [Watch on YouTube](https://www.youtube.com/watch?v=3IAfKmN8pgM)
 
-## Tech Stack
+---
 
-- **Mobile App (Frontend)**:
+## ✨ Features
 
-  - Framework: Flutter (Cross-platform UI)
+### Core Features
 
-  - State Management: BLoC Pattern (Separating UI & Logic)
+- ✅ **Book Management**
+  - Browse comprehensive book catalog
+  - Advanced search and filtering
+  - Category-based organization (Self-help, Business, Literature, etc.)
+  - Detailed book information and metadata
 
-  - Networking: Http (RESTful API calls)
+- ✅ **Reading Experience**
+  - In-app reader with smooth scrolling
+  - Rich HTML text rendering for better typography
+  - Reading progress tracking with bookmark support
+  - Chapter navigation (Previous/Next buttons)
+  - Estimated reading time calculation
 
-  - Utilities: Flutter Dotenv (Env variables), Flutter Widget from HTML (Rich text rendering)
+- ✅ **User Authentication**
+  - Secure Google Sign-In integration
+  - User profile management
+  - Social features (reviews, ratings, favorites)
+  - Personalized recommendations
 
-- **Backend Server**:
+- ✅ **AI Features**
+  - AI chatbot for book recommendations
+  - Real-time chat interface
+  - Intelligent responses using Vector Search
+  - Book summaries and insights
 
-  - Core: Node.js & Express (RESTful API)
-  - Database: MongoDB & Mongoose (NoSQL for Books,Chapters, Authors), Firebase Authentication
-  - Security: Cors (Cross-Origin Resource Sharing)
+- ✅ **Data Synchronization**
+  - Real-time Firestore sync
+  - Cloud Storage for media files
+  - Offline capability support
+  - Cross-device data synchronization
 
-## Installation
+### Additional Features
 
-1.  Backend (Server)
+- 📊 Reading statistics and analytics
+- 💾 Personal library management
+- ⭐ Book ratings and community reviews
+- 🔔 Smart notifications
+- 🌙 Dark mode support
+- 🎨 Beautiful UI with Material Design
 
-```bash
-# 1. Navigate to the backend directory
-cd smartbook-backend
+---
 
-# 2. Install dependencies
-npm install
+## 🛠 Tech Stack
 
-# 3. Configure environment variables
-# Create a .env file and add:
-# MONGO_URI=mongodb+srv://<user>:<pass>@<cluster>.mongodb.net/smartbook?retryWrites=true&w=majority
-# PORT=5001
+### Frontend (Mobile/Web)
 
-# 4. Start the server
-npm run dev
+- **Framework:** Flutter 3.32.7+
+- **Language:** Dart 3.0+
+- **State Management:** Flutter BLoC / Provider
+- **UI Libraries:** Flutter ScreenUtil, Material Design
+- **HTTP Client:** Dio / HTTP
+
+### Backend & Services
+
+- **Authentication:** Firebase Auth + Google Sign-In
+- **Database:** Cloud Firestore
+- **File Storage:** Firebase Storage
+- **AI/Search:** Vector Search, Embeddings
+- **Messaging:** Real-time Firestore
+
+### Development & DevOps
+
+- **Version Control:** Git
+- **Build System:** Gradle (Android), Xcode (iOS)
+- **Package Manager:** Pub
+- **CI/CD:** GitHub Actions (recommended)
+- **IDE:** VS Code / Android Studio / Xcode
+
+### Key Dependencies
+
+```yaml
+# State Management
+flutter_bloc: ^8.x.x
+provider: ^6.x.x
+
+# Firebase Services
+firebase_core: ^3.6.0
+firebase_auth: ^5.3.1
+cloud_firestore: ^5.4.4
+firebase_storage: ^12.3.2
+
+# Authentication
+google_sign_in: ^6.2.1
+
+# UI & Utilities
+flutter_screenutil: ^5.9.0
+flutter_dotenv: ^5.x.x
+html: ^0.15.x
 ```
 
-The server will run at: http://localhost:5001 (or your LAN IP address).
+---
 
-2.  Mobile App (Flutter)
+## 📋 Prerequisites
+
+### System Requirements
+
+- **Flutter SDK:** 3.32.7 or higher
+- **Dart SDK:** 3.0 or higher
+- **Android SDK:** API Level 24+ (for Android builds)
+- **Xcode:** 14.0+ (for iOS builds)
+- **Java JDK:** 11 or higher (for Android compilation)
+
+### Required Tools
 
 ```bash
-# 1. Navigate to the app directory
-cd smart_reader_app
+# Verify Flutter installation
+flutter --version
 
-# 2. Install dependencies
+# Verify Dart
+dart --version
+
+# Check complete setup
+flutter doctor
+```
+
+### Firebase Setup
+
+- Active Firebase project
+- Cloud Firestore enabled
+- Firebase Storage configured
+- Google Sign-In enabled
+- Firestore security rules configured
+
+---
+
+## 📦 Installation
+
+### 1. Clone Repository
+
+```bash
+# Clone with HTTPS
+git clone https://github.com/ntp612k4/smartbook.git
+
+# Navigate to project
+cd smartbook
+```
+
+### 2. Install Dependencies
+
+```bash
+# Get Flutter packages
 flutter pub get
 
-# 3. Configure environment variables
-# Create a .env file in the root directory and add your computer's IP:
-# baseURL=[http://192.168.1.](http://192.168.1.)x:5001
-
-# 4. Run the app
-flutter run
+# Clean build (if needed)
+flutter clean
+flutter pub get
 ```
 
-## Screenshots
+### 3. Firebase Configuration
 
-<div style="display: flex; justify-content: flex-start; margin-bottom: 20px;">
-<img src="assets/screenshots/intro1.jpg" width="23%" alt="" />
-<img src="assets/screenshots/intro2.jpg" width="23%" alt="" />
-<img src="assets/screenshots/intro3.jpg" width="23%" alt="" />
-<img src="assets/screenshots/login.jpg" width="23%" alt="" />
-</div>
+```bash
+# Install FlutterFire CLI
+dart pub global activate flutterfire_cli
 
-<div style="display: flex; justify-content: flex-start; margin-bottom: 20px;">
-<img src="assets/screenshots/register.jpg" width="23%" alt="" />
-<img src="assets/screenshots/home1.jpg" width="23%" alt="" />
-<img src="assets/screenshots/home2.jpg" width="23%" alt="" />
-<img src="assets/screenshots/home3.jpg" width="23%" alt="" />
-</div>
+# Configure Firebase
+flutterfire configure
+# This generates firebase_options.dart and updates platform configs
+```
 
-<div style="display: flex; justify-content: flex-start; margin-bottom: 20px;">
-<img src="assets/screenshots/detail_author.jpg" width="23%" alt="" />
-<img src="assets/screenshots/detail_special_book.jpg" width="23%" alt="" />
-<img src="assets/screenshots/categories.jpg" width="23%" alt="" />
-<img src="assets/screenshots/detail_cate.jpg" width="23%" alt="" />
-</div>
+### 4. Environment Setup
 
-<div style="display: flex; justify-content: flex-start; margin-bottom: 20px;">
-<img src="assets/screenshots/detail1.jpg" width="23%" alt="" />
-<img src="assets/screenshots/detail2.jpg" width="23%" alt="" />
-<img src="assets/screenshots/detail3.jpg" width="23%" alt="" />
-<img src="assets/screenshots/comment.jpg" width="23%" alt="" />
-</div>
+Create `.env` file in project root:
 
-<div style="display: flex; justify-content: flex-start; margin-bottom: 20px;">
-<img src="assets/screenshots/read.jpg" width="23%" alt="" />
-<img src="assets/screenshots/summary.jpg" width="23%" alt="" />
-<img src="assets/screenshots/chatbot.jpg" width="23%" alt="" />
-<img src="assets/screenshots/favorite.jpg" width="23%" alt="" />
-</div>
+```bash
+# Copy template if available
+cp .env.example .env
+```
 
-<div style="display: flex; justify-content: flex-start; margin-bottom: 20px;">
-<img src="assets/screenshots/search.jpg" width="23%" alt="" />
-<img src="assets/screenshots/profile1.jpg" width="23%" alt="" />
-<img src="assets/screenshots/profile2.jpg" width="23%" alt="" />
+**Example `.env` content:**
+
+```env
+FIREBASE_PROJECT_ID=smart-reader-app-f9158
+API_BASE_URL=https://api.smartbook.app
+DEBUG_MODE=false
+LOG_LEVEL=info
+```
+
+### 5. Run Application
+
+```bash
+# Debug mode with hot reload
+flutter run
+
+# Run on specific device
+flutter run -d <device_id>
+
+# Release build
+flutter build apk --release
+flutter build ios --release
+flutter build web
+```
+
+---
+
+## 📁 Project Structure
+
+```
+smartbook/
+├── android/                    # Android native code
+│   ├── app/
+│   │   ├── build.gradle.kts
+│   │   ├── google-services.json (gitignored)
+│   │   └── src/
+│   │       ├── main/
+│   │       │   ├── AndroidManifest.xml
+│   │       │   ├── kotlin/
+│   │       │   └── res/
+│   │       └── debug/
+│   ├── gradle/
+│   └── local.properties (local SDK path)
+│
+├── ios/                        # iOS native code
+│   ├── Runner/
+│   │   ├── AppDelegate.swift
+│   │   ├── GoogleService-Info.plist (gitignored)
+│   │   └── GeneratedPluginRegistrant.swift
+│   └── Runner.xcworkspace/
+│
+├── lib/                        # Main Dart source
+│   ├── main.dart              # App entry point
+│   ├── firebase_options.dart  # Firebase config (generated, gitignored)
+│   │
+│   ├── models/                # Data models
+│   │   ├── author.dart
+│   │   ├── book.dart
+│   │   ├── category.dart
+│   │   ├── chapter.dart
+│   │   ├── chat_message.dart
+│   │   ├── reading_progress.dart
+│   │   ├── review.dart
+│   │   └── user.dart
+│   │
+│   ├── repositories/          # Data layer
+│   │   ├── book_repository.dart
+│   │   ├── user_repository.dart
+│   │   ├── ai_chat_repository.dart
+│   │   └── base_repository.dart
+│   │
+│   ├── screens/               # UI Screens
+│   │   ├── home/
+│   │   ├── onboarding/
+│   │   ├── login/
+│   │   ├── auth/
+│   │   │   └── bloc/
+│   │   ├── book_detail/
+│   │   │   └── bloc/
+│   │   ├── book_list/
+│   │   ├── reader/
+│   │   ├── profile/
+│   │   ├── ai_chat/
+│   │   │   └── bloc/
+│   │   └── category_detail/
+│   │       └── bloc/
+│   │
+│   ├── services/              # Business logic
+│   │   ├── api_service.dart
+│   │   ├── auth_service.dart
+│   │   └── notification_service.dart
+│   │
+│   ├── theme/                 # Design system
+│   │   ├── app_colors.dart
+│   │   ├── app_text_styles.dart
+│   │   └── app_theme.dart
+│   │
+│   └── widgets/               # Reusable components
+│       ├── buttons.dart
+│       ├── book_card.dart
+│       ├── author_avatar.dart
+│       └── loading_indicator.dart
+│
+├── web/                       # Web platform
+│   ├── index.html
+│   ├── manifest.json
+│   └── icons/
+│
+├── test/                      # Unit & widget tests
+│   └── widget_test.dart
+│
+├── assets/                    # Static assets
+│   ├── images/
+│   │   ├── logos/
+│   │   ├── icons/
+│   │   └── illustrations/
+│   └── screenshots/
+│
+├── pubspec.yaml              # Dependencies
+├── pubspec.lock              # Locked versions
+├── analysis_options.yaml     # Linting rules
+├── .gitignore                # Git ignore patterns
+├── README.md                 # This file
+└── LICENSE                   # MIT License
+```
+
+---
+
+## ⚙️ Configuration
+
+### Firebase Configuration
+
+Configuration is auto-generated by `flutterfire configure`:
+
+**Generated files (in `.gitignore`):**
+
+- `lib/firebase_options.dart` - SDK configuration
+- `android/app/google-services.json` - Android config
+- `ios/Runner/GoogleService-Info.plist` - iOS config
+
+⚠️ These files contain sensitive data and should never be committed.
+
+### Environment Variables
+
+Create `.env` in project root:
+
+```env
+# Firebase
+FIREBASE_PROJECT_ID=smart-reader-app-f9158
+
+# API Configuration
+API_BASE_URL=https://api.smartbook.app
+API_TIMEOUT=30000
+
+# Feature Flags
+ENABLE_AI_CHAT=true
+ENABLE_ANALYTICS=true
+
+# Debug
+DEBUG_MODE=false
+LOG_LEVEL=info
+```
+
+### Firestore Security Rules
+
+Recommended security configuration:
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can read/write their own documents
+    match /users/{userId} {
+      allow read, write: if request.auth.uid == userId;
+    }
+
+    // Books readable by authenticated users
+    match /books/{bookId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth.token.admin == true;
+    }
+
+    // Reviews by authenticated users
+    match /reviews/{reviewId} {
+      allow create: if request.auth != null;
+      allow read: if request.auth != null;
+      allow update, delete: if request.auth.uid == resource.data.userId;
+    }
+  }
+}
+```
+
+---
+
+## 🚀 Usage
+
+### Running the App
+
+```bash
+# Debug mode (with hot reload)
+flutter run
+
+# Release mode
+flutter run --release
+
+# Run on specific device
+flutter run -d chrome        # Web
+flutter run -d windows       # Windows
+flutter run -d linux         # Linux
+
+# Verbose output for debugging
+flutter run -v
+```
+
+### Building for Production
+
+#### Android
+
+```bash
+# Build APK (release)
+flutter build apk --release
+
+# Build App Bundle (for Play Store)
+flutter build appbundle --release
+```
+
+#### iOS
+
+```bash
+# Build iOS app
+flutter build ios --release
+
+# Build IPA for App Store
+flutter build ipa --release
+```
+
+#### Web
+
+```bash
+# Build web app
+flutter build web
+```
+
+### Testing
+
+```bash
+# Run all tests
+flutter test
+
+# Run specific test
+flutter test test/widget_test.dart
+
+# Run with coverage
+flutter test --coverage
+```
+
+### Code Quality
+
+```bash
+# Analyze code
+flutter analyze
+
+# Format code
+dart format lib/
+
+# Fix issues automatically
+dart fix --apply
+```
+
+---
+
+## 🔌 API Integration
+
+### Firestore Collections
+
+```
+Database Structure:
+├── users/
+│   └── {userId}/
+│       ├── name
+│       ├── email
+│       ├── profileImage
+│       └── favorites[]
+├── books/
+│   └── {bookId}/
+│       ├── title
+│       ├── author
+│       ├── cover
+│       ├── description
+│       └── chapters[]
+├── chapters/
+│   └── {chapterId}/
+│       ├── title
+│       ├── content
+│       ├── bookId
+│       └── order
+├── reviews/
+│   └── {reviewId}/
+│       ├── bookId
+│       ├── userId
+│       ├── rating
+│       └── comment
+└── chat_messages/
+    └── {messageId}/
+        ├── userId
+        ├── content
+        ├── response
+        └── timestamp
+```
+
+### API Calls Examples
+
+```dart
+// Get all books
+final books = await BookRepository().getAllBooks();
+
+// Get single book
+final book = await BookRepository().getBookById(bookId);
+
+// Add review
+await ReviewRepository().addReview(bookId, reviewData);
+
+// Send chat message
+final response = await AIChatRepository().sendMessage(message);
+```
+
+---
+
+## 📤 Deployment
+
+### Firebase Hosting (Web)
+
+```bash
+# Install Firebase CLI
+npm install -g firebase-tools
+
+# Build web
+flutter build web
+
+# Deploy
+firebase deploy --only hosting
+```
+
+### Google Play Store (Android)
+
+```bash
+# Generate signed APK
+flutter build apk --release --split-per-abi
+
+# Or App Bundle (recommended)
+flutter build appbundle --release
+
+# Upload via Play Console
+```
+
+### Apple App Store (iOS)
+
+```bash
+# Build release
+flutter build ios --release
+
+# Archive and upload via Xcode or Transporter
+```
+
+---
+
+## 🤝 Contributing
+
+### Branch Naming Convention
+
+```bash
+# Features
+git checkout -b feature/your-feature-name
+
+# Bug fixes
+git checkout -b bugfix/bug-description
+
+# Releases
+git checkout -b release/v1.0.0
+```
+
+### Commit Message Format
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**Types:** feat, fix, docs, style, refactor, test, chore
+
+**Example:**
+
+```
+feat(reader): add page jump functionality
+
+- Allow users to jump to specific page
+- Add page input dialog
+- Show current page info
+
+Closes #123
+```
+
+### Pull Request Process
+
+1. Fork repository
+2. Create feature branch
+3. Commit changes
+4. Push to branch
+5. Open Pull Request
+6. Wait for review and approval
+7. Merge to main
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues & Solutions
+
+#### Firebase Initialization Fails
+
+```bash
+flutterfire configure --project=smart-reader-app-f9158
+flutter clean
+flutter pub get
+```
+
+#### Android Build Error
+
+```bash
+./gradlew clean build
+# Or
+flutter clean && flutter pub get
+```
+
+#### iOS Pod Issues
+
+```bash
+cd ios/
+rm -rf Pods/
+cd ..
+flutter clean && flutter pub get
+```
+
+#### Hot Reload Not Working
+
+```bash
+# Restart the app or press 'R' in terminal
+flutter run -v
+```
+
+#### Firestore Connection Issues
+
+- ✅ Check internet connection
+- ✅ Verify Firebase project ID
+- ✅ Check Firestore security rules
+- ✅ Review Firebase console logs
+
+### Debug Commands
+
+```bash
+# Verbose output
+flutter run -v
+
+# Check devices
+flutter devices
+
+# Clean rebuild
+flutter clean && flutter pub get
+
+# Check for updates
+flutter pub outdated
+```
+
+---
+
+## 📄 License
+
+Licensed under the **MIT License** - see [LICENSE](LICENSE) for details.
+
+---
+
+## 📞 Contact & Support
+
+### Project Lead
+
+- **Email:** your.email@company.com
+- **GitHub:** [@ntp612k4](https://github.com/ntp612k4)
+
+### Support
+
+- 📧 Email: support@smartbook.app
+- 🐛 Issues: [GitHub Issues](https://github.com/ntp612k4/smartbook/issues)
+- 💬 Discussions: [GitHub Discussions](https://github.com/ntp612k4/smartbook/discussions)
+
+### Resources
+
+- [Flutter Documentation](https://flutter.dev/docs)
+- [Firebase Documentation](https://firebase.google.com/docs)
+- [Dart Style Guide](https://dart.dev/guides/language/effective-dart)
+
+---
+
+## 🎉 Acknowledgments
+
+- Flutter team for the amazing framework
+- Firebase for backend infrastructure
+- Community contributors
+
+---
+
+<div align="center">
+
+**Made with ❤️ by the SmartBook Team**
+
+[⬆ back to top](#smartbook---intelligent-reader-application)
+
 </div>
