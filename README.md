@@ -39,8 +39,8 @@ A modern intelligent book reading application with AI-powered features, Firebase
 ## 🛠 Tech Stack
 
 **Frontend:** Flutter 3.32.7+, Dart 3.0+, BLoC Pattern  
-**Backend:** Firebase (Auth, Firestore, Storage)  
-**AI:** Vector Search, Embeddings  
+**Backend:** SmartBook Backend API, Firebase (Auth, Firestore, Storage)  
+**AI:** Gemini chat, optional RAG with MongoDB vector search  
 **Build:** Gradle (Android), Xcode (iOS)
 
 ---
@@ -92,16 +92,36 @@ flutterfire configure
 Create `.env` file:
 
 ```env
-baseURL=http://your-server-ip:5001
-FIREBASE_PROJECT_ID=smart-reader-app-f9158
-DEBUG_MODE=false
+# Local backend running on this Windows machine.
+baseURL=http://127.0.0.1:5001
+
+# Physical phone on the same Wi-Fi:
+# baseURL=http://YOUR_WINDOWS_WIFI_IP:5001
+
+# VM backend:
+# baseURL=http://YOUR_VM_EXTERNAL_IP:3000
 ```
 
 ### 5. Run Application
 
 ```bash
-flutter run              # Debug mode
-flutter run --release   # Release mode
+flutter run
+```
+
+### 6. Run on LDPlayer with Local Backend
+
+LDPlayer cannot automatically reach the Windows `localhost`. Start the backend first, then run:
+
+```bash
+adb connect 127.0.0.1:5555
+adb -s 127.0.0.1:5555 reverse tcp:5001 tcp:5001
+flutter run -d 127.0.0.1:5555
+```
+
+Keep frontend `.env` as:
+
+```env
+baseURL=http://127.0.0.1:5001
 ```
 
 ---
@@ -128,6 +148,37 @@ flutter test
 flutter analyze
 dart format lib/
 ```
+
+---
+
+## AI Chat and RAG
+
+The app has two AI chat modes:
+
+- Legacy prompt mode: sends the selected chapter context to `POST /api/ai/chat`
+- RAG mode: sends the question to `POST /api/ai/chat-rag` and lets the backend retrieve relevant book chunks
+
+Current frontend switch:
+
+```dart
+// lib/screens/ai_chat/bloc/ai_chat_bloc.dart
+bool useRAG = false;
+```
+
+Set it to `true` only after the backend has generated embeddings:
+
+```dart
+bool useRAG = true;
+```
+
+Backend command:
+
+```bash
+cd ../smartbook-backend
+npm run rag:embed
+```
+
+If `useRAG` is `false`, terminal logs will show `Using Legacy Prompt Engineering method`, which means the chat is not using RAG yet.
 
 ---
 

@@ -13,7 +13,7 @@ class AIChatBloc extends Bloc<AIChatEvent, AIChatState> {
   late String userId;
 
   // ✅ NEW: RAG Mode Flag
-  bool useRAG = false; // Disable RAG until the MongoDB vector index is ready.
+  bool useRAG = true; // Disable RAG until the MongoDB vector index is ready.
 
   AIChatBloc({
     required this.repository,
