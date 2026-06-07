@@ -163,12 +163,15 @@ class BookRepository {
   }
 
   // HÃ m gá»i AI tÃ³m táº¯t
-  Future<String?> summarizeChapter(String text) async {
+  Future<String?> summarizeChapter(String text, {String? chapterId}) async {
     try {
       final response = await http.post(
         Uri.parse('$_baseUrl/api/ai/summarize'),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"content": text}),
+        body: jsonEncode({
+          "chapterId": chapterId,
+          "content": text,
+        }),
       );
 
       if (response.statusCode == 200) {
@@ -282,3 +285,4 @@ class BookRepository {
     }
   }
 }
+

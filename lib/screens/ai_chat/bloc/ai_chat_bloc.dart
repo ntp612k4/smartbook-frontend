@@ -13,7 +13,7 @@ class AIChatBloc extends Bloc<AIChatEvent, AIChatState> {
   late String userId;
 
   // ✅ NEW: RAG Mode Flag
-  bool useRAG = true; // ✅ TRUE - Dùng RAG để tiết kiệm token!
+  bool useRAG = false; // Disable RAG until the MongoDB vector index is ready.
 
   AIChatBloc({
     required this.repository,
@@ -63,6 +63,10 @@ class AIChatBloc extends Bloc<AIChatEvent, AIChatState> {
         // ✅ RAG: Vector Search Mode (không cần truyền context)
         print('🚀 Using RAG method...');
         try {
+          print('  BookId: $bookId');
+          print('  ChapterId: $chapterId');
+          print('  Question: ${event.question}');
+
           final ragResult = await repository.askAI_RAG(
             userId: userId,
             bookId: bookId,
@@ -70,18 +74,27 @@ class AIChatBloc extends Bloc<AIChatEvent, AIChatState> {
             question: event.question,
           );
           aiResponse = ragResult['answer'] ?? "Không thể lấy câu trả lời";
-          print('✅ RAG Response received');
+          final preview = aiResponse.length > 100
+              ? aiResponse.substring(0, 100)
+              : aiResponse;
+          print('✅ RAG Response received: $preview...');
         } catch (ragError) {
           // Fallback to Legacy if RAG fails
-          print('⚠️ RAG failed, falling back to Legacy: $ragError');
-          aiResponse = await repository.askAI(
-            userId: userId,
-            bookId: bookId,
-            chapterId: chapterId,
-            question: event.question,
-            context: event.context,
-          );
-          print('✅ Fallback to Legacy successful');
+          print('⚠️ RAG failed: $ragError');
+          print('⚡ Falling back to Legacy method...');
+          try {
+            aiResponse = await repository.askAI(
+              userId: userId,
+              bookId: bookId,
+              chapterId: chapterId,
+              question: event.question,
+              context: event.context,
+            );
+            print('✅ Fallback to Legacy successful');
+          } catch (legacyError) {
+            print('❌ Legacy also failed: $legacyError');
+            rethrow;
+          }
         }
       } else {
         // ❌ Legacy: Prompt Engineering Mode (cần truyền context)

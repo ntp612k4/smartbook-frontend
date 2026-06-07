@@ -484,7 +484,7 @@ class _AIChatDialogState extends State<AIChatDialog> {
     bloc.add(
       SendChatMessage(
         question: question,
-        context: bloc.useRAG ? "" : widget.chapterContent,
+        context: widget.chapterContent,
       ),
     );
 

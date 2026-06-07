@@ -55,12 +55,9 @@ class AIChatRepository {
       } else if (response.statusCode == 429) {
         throw Exception("⚠️ Quá nhiều yêu cầu. Vui lòng chờ một lát.");
       } else {
-        print(
-          '❌ AI Chat Error: ${response.statusCode} - ${response.body}',
-        );
-        throw Exception(
-          'Lỗi: ${response.statusCode} - ${response.body}',
-        );
+        final errorMsg = 'API Error: ${response.statusCode} - ${response.body}';
+        print('❌ AI Chat Error: $errorMsg');
+        throw Exception('Lỗi: $errorMsg');
       }
     } catch (e) {
       print('❌ AI Chat Exception: $e');
@@ -75,6 +72,11 @@ class AIChatRepository {
   }) async {
     try {
       final url = Uri.parse('$_baseUrl/api/ai/summarize');
+
+      print('📝 Summarize Request:');
+      print('  Endpoint: $url');
+      print('  ChapterId: $chapterId');
+      print('  Content length: ${chapterContent.length}');
 
       final response = await http
           .post(
@@ -94,9 +96,14 @@ class AIChatRepository {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
-        return data['summary'] ?? "Không thể tóm tắt";
+        final summary = data['summary'] ?? "Không thể tóm tắt";
+        print('✅ Summarize Success: ${summary.length} chars');
+        return summary;
       } else {
-        throw Exception('Lỗi tóm tắt: ${response.statusCode}');
+        final errorMsg =
+            'Summarize Error: ${response.statusCode} - ${response.body}';
+        print('❌ $errorMsg');
+        throw Exception(errorMsg);
       }
     } catch (e) {
       print('❌ Summarize Exception: $e');

@@ -521,7 +521,7 @@ class _ReaderViewState extends State<ReaderView> {
 
       // 4. Gá»i Repository
       final repo = context.read<BookRepository>();
-      final summary = await repo.summarizeChapter(cleanText);
+      final summary = await repo.summarizeChapter(cleanText, chapterId: widget.chapterId);
 
       // Táº¯t Loading
       if (mounted) Navigator.pop(context);
@@ -824,3 +824,4 @@ class _ReaderViewState extends State<ReaderView> {
     );
   }
 }
+
