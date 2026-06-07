@@ -14,7 +14,7 @@ A modern intelligent book reading application with AI-powered features, Firebase
 
 ---
 
-## 🎯 Overview
+## Overview
 
 **SmartBook** is an intelligent book reading platform combining traditional e-reading with modern AI features. Users can browse, read, and discover books with AI chatbot assistance for recommendations and discussions.
 
@@ -22,17 +22,17 @@ A modern intelligent book reading application with AI-powered features, Firebase
 
 ---
 
-## ✨ Features
+## Features
 
-- 📚 Browse and discover books with advanced search & filtering
-- 👤 User authentication with Google Sign-In
-- 📖 Rich reading experience with HTML content rendering
-- ⭐ Book ratings, reviews, and personal library management
-- 🤖 AI chatbot for book recommendations and discussions
-- 💾 Real-time Firestore synchronization
-- 📊 Reading progress tracking and analytics
-- 🌙 Dark mode & responsive UI design
-- 📱 Cross-platform support (Android, iOS, Web, Windows, macOS, Linux)
+- Browse and discover books with advanced search & filtering
+- User authentication with Google Sign-In
+- Rich reading experience with HTML content rendering
+- Book ratings, reviews, and personal library management
+- AI chatbot for book recommendations and discussions
+- Real-time Firestore synchronization
+- Reading progress tracking and analytics
+- Dark mode & responsive UI design
+- Cross-platform support (Android, iOS, Web, Windows, macOS, Linux)
 
 ---
 
@@ -45,7 +45,7 @@ A modern intelligent book reading application with AI-powered features, Firebase
 
 ---
 
-## 📋 Prerequisites
+## Prerequisites
 
 ```bash
 # Verify installations
@@ -65,7 +65,7 @@ flutter doctor       # Complete setup check
 
 ---
 
-## 📦 Installation
+## Installation
 
 ### 1. Clone Repository
 
@@ -118,15 +118,7 @@ adb -s 127.0.0.1:5555 reverse tcp:5001 tcp:5001
 flutter run -d 127.0.0.1:5555
 ```
 
-Keep frontend `.env` as:
-
-```env
-baseURL=http://127.0.0.1:5001
-```
-
----
-
-## 🚀 Usage
+## Usage
 
 ```bash
 # Debug with hot reload
@@ -151,38 +143,7 @@ dart format lib/
 
 ---
 
-## AI Chat and RAG
-
-The app has two AI chat modes:
-
-- Legacy prompt mode: sends the selected chapter context to `POST /api/ai/chat`
-- RAG mode: sends the question to `POST /api/ai/chat-rag` and lets the backend retrieve relevant book chunks
-
-Current frontend switch:
-
-```dart
-// lib/screens/ai_chat/bloc/ai_chat_bloc.dart
-bool useRAG = false;
-```
-
-Set it to `true` only after the backend has generated embeddings:
-
-```dart
-bool useRAG = true;
-```
-
-Backend command:
-
-```bash
-cd ../smartbook-backend
-npm run rag:embed
-```
-
-If `useRAG` is `false`, terminal logs will show `Using Legacy Prompt Engineering method`, which means the chat is not using RAG yet.
-
----
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 lib/
@@ -197,16 +158,16 @@ lib/
 
 ---
 
-## 🔒 Security
+## Security
 
-- ⚠️ Sensitive files in `.gitignore`: `firebase_options.dart`, `google-services.json`
-- 🔐 Google Sign-In for authentication
-- 🛡️ Firestore security rules enforced
-- 🚫 Never commit `.env` or credential files
+- Sensitive files in `.gitignore`: `firebase_options.dart`, `google-services.json`
+- Google Sign-In for authentication
+- Firestore security rules enforced
+- Never commit `.env` or credential files
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 ```bash
 # Create feature branch
@@ -223,7 +184,7 @@ git push origin feature/your-feature
 
 ---
 
-## 📞 Contact
+## Contact
 
 - **GitHub:** [@ntp612k4](https://github.com/ntp612k4)
 - **Issues:** [GitHub Issues](https://github.com/ntp612k4/smartbook/issues)
@@ -231,7 +192,7 @@ git push origin feature/your-feature
 
 ---
 
-## 📄 License
+## License
 
 MIT License - see [LICENSE](LICENSE) for details
 
@@ -247,6 +208,6 @@ MIT License - see [LICENSE](LICENSE) for details
 
 <div align="center">
 
-Made with ❤️ by SmartBook Team
+Made with by SmartBook Team
 
 </div>
